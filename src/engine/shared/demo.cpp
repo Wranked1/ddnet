@@ -1268,7 +1268,9 @@ void CDemoPlayer::UpdateTimes()
 	const int64_t Freq = time_freq();
 	const int64_t CurrentTickStart = m_Info.m_Info.m_CurrentTick * Freq / SERVER_TICK_SPEED;
 	const int64_t PreviousTickStart = m_Info.m_PreviousTick * Freq / SERVER_TICK_SPEED;
-	m_Info.m_IntraTick = (m_Info.m_CurrentTime - PreviousTickStart) / (float)(CurrentTickStart - PreviousTickStart);
+	// Previous and current tick are both -1 when (re)starting playback, e.g. when seeking to a keyframe
+	const int64_t TickDuration = CurrentTickStart - PreviousTickStart;
+	m_Info.m_IntraTick = TickDuration > 0 ? (m_Info.m_CurrentTime - PreviousTickStart) / (float)TickDuration : 0.0f;
 	m_Info.m_IntraTickSincePrev = (m_Info.m_CurrentTime - PreviousTickStart) / (float)(Freq / SERVER_TICK_SPEED);
 	m_Info.m_TickTime = (m_Info.m_CurrentTime - PreviousTickStart) / (float)Freq;
 	m_Info.m_Info.m_LivePlayback = m_Info.m_Info.m_LastTick - m_Info.m_Info.m_CurrentTick < 3 * SERVER_TICK_SPEED;
