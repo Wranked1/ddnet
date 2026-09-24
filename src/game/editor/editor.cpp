@@ -4297,6 +4297,31 @@ void CEditor::RenderIngameEntities(const CLayerGroup &Group, const CLayerTiles &
 	const ColorRGBA DoorOuterColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserDoorOutlineColor));
 	const ColorRGBA DoorInnerColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClLaserDoorInnerColor));
 
+	// doors are stopped by the same tiles as ingame, see CCollision::IntersectNoLaser
+	const CLayerTiles &GameLayer = *Map()->m_pGameLayer;
+	const CLayerTiles *pFrontLayer = Map()->m_pFrontLayer.get();
+	const auto IntersectNoLaser = [&](vec2 Pos0, vec2 Pos1) -> vec2 {
+		const float Distance = distance(Pos0, Pos1);
+		const int DistanceRounded = std::ceil(Distance);
+		for(int i = 0; i < DistanceRounded; i++)
+		{
+			const vec2 Pos = mix(Pos0, Pos1, i / Distance);
+			const int Nx = std::clamp(round_to_int(Pos.x) / 32, 0, GameLayer.m_Width - 1);
+			const int Ny = std::clamp(round_to_int(Pos.y) / 32, 0, GameLayer.m_Height - 1);
+			const int GameIndex = GameLayer.m_pTiles[Ny * GameLayer.m_Width + Nx].m_Index;
+			int FrontIndex = TILE_AIR;
+			if(pFrontLayer != nullptr && Nx < pFrontLayer->m_Width && Ny < pFrontLayer->m_Height)
+			{
+				FrontIndex = pFrontLayer->m_pTiles[Ny * pFrontLayer->m_Width + Nx].m_Index;
+			}
+			if(GameIndex == TILE_SOLID || GameIndex == TILE_NOHOOK || GameIndex == TILE_NOLASER || FrontIndex == TILE_NOLASER)
+			{
+				return Pos;
+			}
+		}
+		return Pos1;
+	};
+
 	CScreenRect ScreenRect = Group.Mapping();
 	const int ExtraBorder = 9; // doors extend beyond the tile on which they are placed
 	const int StartX = std::max(0, (int)std::floor(ScreenRect.m_TopLeft.x / TileSize) - ExtraBorder);
@@ -4317,9 +4342,9 @@ void CEditor::RenderIngameEntities(const CLayerGroup &Group, const CLayerTiles &
 					if(IndexDoorLength >= ENTITY_LASER_SHORT && IndexDoorLength <= ENTITY_LASER_LONG)
 					{
 						const int Length = (IndexDoorLength - ENTITY_LASER_SHORT + 1) * 3;
-						const vec2 Pos = vec2(x + 0.5f, y + 0.5f);
-						const vec2 To = Pos + normalize(vec2(Offset.x, Offset.y)) * Length;
-						pGameClient->m_Items.RenderLaser(To * TileSize, Pos * TileSize, DoorOuterColor, DoorInnerColor, 0.0f, 0.0f, LASERTYPE_DOOR);
+						const vec2 Pos = vec2(x + 0.5f, y + 0.5f) * TileSize;
+						const vec2 To = IntersectNoLaser(Pos, Pos + normalize(vec2(Offset.x, Offset.y)) * Length * TileSize);
+						pGameClient->m_Items.RenderLaser(To, Pos, DoorOuterColor, DoorInnerColor, 0.0f, 0.0f, LASERTYPE_DOOR);
 					}
 				}
 			}
