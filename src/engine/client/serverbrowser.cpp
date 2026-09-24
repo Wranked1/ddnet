@@ -1463,7 +1463,10 @@ bool CServerBrowser::ParseCommunityServers(CCommunity *pCommunity, const json_va
 			log_error("serverbrowser", "invalid community country code (ServerIndex=%u)", ServerIndex);
 			return false;
 		}
-		pCommunity->m_vCountries.emplace_back(Name.u.string.ptr, FlagId.u.integer);
+		// Community servers without country flag use the same placeholder country as servers
+		// without community, so the default flag is only shown once in the countries filter.
+		const char *pCountryName = FlagId.u.integer == CountryCode::DEFAULT ? COMMUNITY_COUNTRY_NONE : Name.u.string.ptr;
+		pCommunity->m_vCountries.emplace_back(pCountryName, FlagId.u.integer);
 		CCommunityCountry *pCountry = &pCommunity->m_vCountries.back();
 
 		for(unsigned TypeIndex = 0; TypeIndex < Types.u.object.length; ++TypeIndex)

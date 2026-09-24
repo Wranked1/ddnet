@@ -876,6 +876,13 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 {
 	vItemIds.resize(MaxItems);
 
+	// The none country is kept active on left click to keep servers without community visible.
+	// Community servers without country flag also use it, so only do this if the none community is selected.
+	const std::vector<const CCommunity *> &vpSelectedCommunities = ServerBrowser()->CommunityCache().SelectedCommunities();
+	const bool NoneCommunitySelected = std::any_of(vpSelectedCommunities.begin(), vpSelectedCommunities.end(), [](const CCommunity *pCommunity) {
+		return str_comp(pCommunity->Id(), IServerBrowser::COMMUNITY_NONE) == 0;
+	});
+
 	CScrollRegionParams ScrollParams;
 	ScrollParams.m_ScrollbarThickness = 10.0f;
 	ScrollParams.m_ScrollbarMargin = 3.0f;
@@ -911,7 +918,7 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 					{
 						if(const char *pItemName = GetItemName(j);
 							j != ItemIndex &&
-							!((&Filter == &ServerBrowser()->CountriesFilter() && str_comp(pItemName, IServerBrowser::COMMUNITY_COUNTRY_NONE) == 0) ||
+							!((&Filter == &ServerBrowser()->CountriesFilter() && NoneCommunitySelected && str_comp(pItemName, IServerBrowser::COMMUNITY_COUNTRY_NONE) == 0) ||
 								(&Filter == &ServerBrowser()->TypesFilter() && str_comp(pItemName, IServerBrowser::COMMUNITY_TYPE_NONE) == 0)))
 							Filter.Add(pItemName);
 					}
@@ -932,7 +939,7 @@ void CMenus::RenderServerbrowserDDNetFilter(CUIRect View,
 				{
 					if(const char *pItemName = GetItemName(j);
 						j != ItemIndex && !Filter.Filtered(pItemName) &&
-						!((&Filter == &ServerBrowser()->CountriesFilter() && str_comp(pItemName, IServerBrowser::COMMUNITY_COUNTRY_NONE) == 0) ||
+						!((&Filter == &ServerBrowser()->CountriesFilter() && NoneCommunitySelected && str_comp(pItemName, IServerBrowser::COMMUNITY_COUNTRY_NONE) == 0) ||
 							(&Filter == &ServerBrowser()->TypesFilter() && str_comp(pItemName, IServerBrowser::COMMUNITY_TYPE_NONE) == 0)))
 					{
 						AllFilteredExceptUs = false;
