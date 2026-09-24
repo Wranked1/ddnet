@@ -436,7 +436,7 @@ void CMenus::RenderSettingsAppearance(CUIRect MainView)
 			const float RealBackgroundRounding = Chat.MessageRounding() * 2.0f;
 
 			auto &&RenderMessageBackground = [&](int LineIndex) {
-				auto Size = RenderPreview(LineIndex, 0, 0, false);
+				auto Size = RenderPreview(LineIndex, X, TempY, false);
 				Graphics()->DrawRectExt(X - RealMsgPaddingX / 2.0f, TempY - RealMsgPaddingY / 2.0f, Size.x + RealMsgPaddingX * 1.5f, Size.y, RealBackgroundRounding, IGraphics::CORNER_ALL);
 				return Size.y;
 			};
