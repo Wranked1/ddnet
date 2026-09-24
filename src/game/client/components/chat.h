@@ -48,6 +48,7 @@ class CChat : public CComponent
 		int m_NameColor;
 		char m_aName[64];
 		char m_aText[MAX_CHAT_LENGTH];
+		char m_aStreamerModeText[MAX_CHAT_LENGTH];
 		bool m_Friend;
 		bool m_Highlighted;
 		std::optional<ColorRGBA> m_CustomColor;
@@ -167,6 +168,11 @@ public:
 
 	bool IsActive() const { return m_Mode != MODE_NONE; }
 	void AddLine(int ClientId, int Team, const char *pLine);
+	/**
+	 * Adds a line that is rendered as `pStreamerModeLine` instead of `pLine` while streamer mode is enabled,
+	 * unless `pStreamerModeLine` is `nullptr`. The console always receives the original line.
+	 */
+	void AddLineWithStreamerModeText(int ClientId, int Team, const char *pLine, const char *pStreamerModeLine);
 	void EnableMode(int Team);
 	void DisableMode();
 	void RegisterCommand(const char *pName, const char *pParams, const char *pHelpText);

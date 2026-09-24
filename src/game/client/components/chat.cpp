@@ -42,6 +42,7 @@ void CChat::CLine::Reset(CChat &This)
 	m_Initialized = false;
 	m_Time = 0;
 	m_aText[0] = '\0';
+	m_aStreamerModeText[0] = '\0';
 	m_aName[0] = '\0';
 	m_Friend = false;
 	m_TimesRepeated = 0;
@@ -658,6 +659,11 @@ void CChat::StoreSave(const char *pText)
 
 void CChat::AddLine(int ClientId, int Team, const char *pLine)
 {
+	AddLineWithStreamerModeText(ClientId, Team, pLine, nullptr);
+}
+
+void CChat::AddLineWithStreamerModeText(int ClientId, int Team, const char *pLine, const char *pStreamerModeLine)
+{
 	if(*pLine == 0 ||
 		(ClientId == SERVER_MSG && !g_Config.m_ClShowChatSystem) ||
 		(ClientId >= 0 && (GameClient()->m_aClients[ClientId].m_aName[0] == '\0' || // unknown client
@@ -798,6 +804,10 @@ void CChat::AddLine(int ClientId, int Team, const char *pLine)
 	CurrentLine.m_Highlighted = Highlighted;
 
 	str_copy(CurrentLine.m_aText, pLine);
+	if(pStreamerModeLine != nullptr)
+	{
+		str_copy(CurrentLine.m_aStreamerModeText, pStreamerModeLine);
+	}
 
 	if(CurrentLine.m_ClientId == SERVER_MSG)
 	{
@@ -977,8 +987,13 @@ void CChat::OnPrepareLines(float y)
 			str_format(aCount, sizeof(aCount), " [%d]", Line.m_TimesRepeated + 1);
 
 		const char *pText = Line.m_aText;
-		if(Config()->m_ClStreamerMode && Line.m_ClientId == SERVER_MSG)
+		if(Config()->m_ClStreamerMode && Line.m_aStreamerModeText[0] != '\0')
 		{
+			pText = Line.m_aStreamerModeText;
+		}
+		else if(Config()->m_ClStreamerMode && Line.m_ClientId == SERVER_MSG)
+		{
+			// Servers without the save code net message send save codes as untranslated chat messages
 			if(str_startswith(Line.m_aText, "Team save in progress. You'll be able to load with '/load ") && str_endswith(Line.m_aText, "'"))
 			{
 				pText = "Team save in progress. You'll be able to load with '/load *** *** ***'";
