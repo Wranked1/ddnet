@@ -122,15 +122,10 @@ void CLayerSwitch::BrushDraw(CLayer *pBrush, vec2 WorldPos)
 					m_pSwitchTile[TgtIndex].m_Number = Editor()->m_SwitchNumber;
 					m_pSwitchTile[TgtIndex].m_Delay = Editor()->m_SwitchDelay;
 				}
-				else if(pSwitchLayer->m_pSwitchTile[SrcIndex].m_Number)
+				else
 				{
 					m_pSwitchTile[TgtIndex].m_Number = pSwitchLayer->m_pSwitchTile[SrcIndex].m_Number;
 					m_pSwitchTile[TgtIndex].m_Delay = pSwitchLayer->m_pSwitchTile[SrcIndex].m_Delay;
-				}
-				else
-				{
-					m_pSwitchTile[TgtIndex].m_Number = Editor()->m_SwitchNumber;
-					m_pSwitchTile[TgtIndex].m_Delay = Editor()->m_SwitchDelay;
 				}
 
 				m_pSwitchTile[TgtIndex].m_Type = pSwitchLayer->m_pTiles[SrcIndex].m_Index;
@@ -292,14 +287,14 @@ void CLayerSwitch::FillSelection(bool Empty, CLayer *pBrush, CUIRect Rect)
 				{
 					if(!IsSwitchTileNumberUsed(m_pSwitchTile[TgtIndex].m_Type))
 						m_pSwitchTile[TgtIndex].m_Number = 0;
-					else if(pLt->m_pSwitchTile[SrcIndex].m_Number == 0 || Editor()->m_SwitchNumber != pLt->m_SwitchNumber)
+					else if(Editor()->m_SwitchNumber != pLt->m_SwitchNumber)
 						m_pSwitchTile[TgtIndex].m_Number = Editor()->m_SwitchNumber;
 					else
 						m_pSwitchTile[TgtIndex].m_Number = pLt->m_pSwitchTile[SrcIndex].m_Number;
 
 					if(!IsSwitchTileDelayUsed(m_pSwitchTile[TgtIndex].m_Type))
 						m_pSwitchTile[TgtIndex].m_Delay = 0;
-					else if(pLt->m_pSwitchTile[SrcIndex].m_Delay == 0 || Editor()->m_SwitchDelay != pLt->m_SwitchDelay)
+					else if(Editor()->m_SwitchDelay != pLt->m_SwitchDelay)
 						m_pSwitchTile[TgtIndex].m_Delay = Editor()->m_SwitchDelay;
 					else
 						m_pSwitchTile[TgtIndex].m_Delay = pLt->m_pSwitchTile[SrcIndex].m_Delay;
