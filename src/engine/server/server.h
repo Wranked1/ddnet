@@ -34,6 +34,7 @@ class CHostLookup;
 class CLogMessage;
 class CMsgPacker;
 class CPacker;
+class CServerLogger;
 class IEngine;
 class IEngineHttp;
 class ILogger;
@@ -293,6 +294,7 @@ public:
 
 	std::shared_ptr<ILogger> m_pFileLogger = nullptr;
 	std::shared_ptr<ILogger> m_pStdoutLogger = nullptr;
+	std::shared_ptr<CServerLogger> m_pServerLogger = nullptr;
 
 	CServer();
 	~CServer() override;
@@ -553,6 +555,7 @@ public:
 	bool ClientSupportsServerMaxClients(int ClientId) const override;
 
 	void SetLoggers(std::shared_ptr<ILogger> &&pFileLogger, std::shared_ptr<ILogger> &&pStdoutLogger);
+	void SetServerLogger(std::shared_ptr<CServerLogger> pServerLogger);
 
 #ifdef CONF_FAMILY_UNIX
 	enum CONN_LOGGING_CMD

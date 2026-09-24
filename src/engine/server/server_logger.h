@@ -17,6 +17,8 @@ public:
 	CServerLogger(CServer *pServer);
 	void Log(const CLogMessage *pMessage) override REQUIRES(!m_PendingLock);
 	// Must be called from the main thread!
+	void Flush() REQUIRES(!m_PendingLock);
+	// Must be called from the main thread!
 	void OnServerDeletion();
 };
 

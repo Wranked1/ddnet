@@ -6,6 +6,7 @@
 #include "databases/connection.h"
 #include "databases/connection_pool.h"
 #include "register.h"
+#include "server_logger.h"
 
 #include <base/bytes.h>
 #include <base/fs.h>
@@ -3708,6 +3709,10 @@ int CServer::Run()
 				m_ReloadedWhenEmpty = false;
 			}
 
+			// send log lines from other threads to rcon and econ
+			if(m_pServerLogger)
+				m_pServerLogger->Flush();
+
 			// wait for incoming data
 			if(NonActive && Config()->m_SvShutdownWhenEmpty)
 			{
@@ -4947,4 +4952,9 @@ void CServer::SetLoggers(std::shared_ptr<ILogger> &&pFileLogger, std::shared_ptr
 {
 	m_pFileLogger = pFileLogger;
 	m_pStdoutLogger = pStdoutLogger;
+}
+
+void CServer::SetServerLogger(std::shared_ptr<CServerLogger> pServerLogger)
+{
+	m_pServerLogger = std::move(pServerLogger);
 }

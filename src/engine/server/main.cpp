@@ -215,6 +215,7 @@ int main(int argc, const char **argv)
 
 	auto pServerLogger = std::make_shared<CServerLogger>(pServer);
 	pEngine->SetAdditionalLogger(pServerLogger);
+	pServer->SetServerLogger(pServerLogger);
 
 	// run the server
 	log_trace("server", "initialization finished after %.2fms, starting...", (time_get() - MainStart) * 1000.0f / (float)time_freq());
