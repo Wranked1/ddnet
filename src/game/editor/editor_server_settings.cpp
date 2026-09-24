@@ -1389,6 +1389,25 @@ void CMapSettingsBackend::CContext::ParseArgs(const char *pLineInputStr, const c
 		// Fill argument value, with a maximum length of 256
 		str_copy(NewArg.m_aValue, pArgStart, std::min(sizeof(SCurrentSettingArg::m_aValue), Length + 1));
 
+		// Remove the quotes and escape characters of a quoted argument before validating its value, like the console does
+		char aUnquotedValue[sizeof(SCurrentSettingArg::m_aValue)];
+		const char *pValue = NewArg.m_aValue;
+		if(Char == '"' && Valid)
+		{
+			const char *pSrc = NewArg.m_aValue + 1;
+			char *pDst = aUnquotedValue;
+			while(*pSrc != '\0' && *pSrc != '"')
+			{
+				if(pSrc[0] == '\\' && (pSrc[1] == '\\' || pSrc[1] == '"'))
+					pSrc++; // Skip escape character
+				*pDst = *pSrc;
+				pDst++;
+				pSrc++;
+			}
+			*pDst = '\0';
+			pValue = aUnquotedValue;
+		}
+
 		// Validate argument from the parsed argument of the current setting.
 		// If current setting is not valid, then there are no arguments which results in an error.
 
@@ -1414,13 +1433,13 @@ void CMapSettingsBackend::CContext::ParseArgs(const char *pLineInputStr, const c
 			else if(Arg.m_Type == 'i')
 			{
 				// Validate int
-				if(!str_toint(NewArg.m_aValue, nullptr))
+				if(!str_toint(pValue, nullptr))
 					Error = SCommandParseError::ERROR_INVALID_VALUE;
 			}
 			else if(Arg.m_Type == 'f')
 			{
 				// Validate float
-				if(!str_tofloat(NewArg.m_aValue, nullptr))
+				if(!str_tofloat(pValue, nullptr))
 					Error = SCommandParseError::ERROR_INVALID_VALUE;
 			}
 			else if(Arg.m_Type == 's')
@@ -1433,7 +1452,7 @@ void CMapSettingsBackend::CContext::ParseArgs(const char *pLineInputStr, const c
 			// Extended argument validation:
 			//   for int settings it checks that the value is in range
 			//   for command settings, it checks that the value is one of the possible values if there are any
-			EValidationResult Result = ValidateArg(ArgIndex, NewArg.m_aValue);
+			EValidationResult Result = ValidateArg(ArgIndex, pValue);
 			if(Length && !Error && Result != EValidationResult::VALID)
 			{
 				if(Result == EValidationResult::ERROR)
