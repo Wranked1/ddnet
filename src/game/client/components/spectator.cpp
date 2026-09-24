@@ -382,7 +382,9 @@ void CSpectator::OnRender()
 		}
 	}
 	TextRender()->TextColor(1.0f, 1.0f, 1.0f, FreeViewSelected ? 1.0f : 0.5f);
-	TextRender()->Text(Width / 2.0f - (ObjWidth - 40.0f), Height / 2.0f - 280.f + (60.f - BigFontSize) / 2.f, BigFontSize, Localize("Free-View"), -1.0f);
+	CUIRect FreeViewLabel = {Width / 2.0f - (ObjWidth - 20.0f), Height / 2.0f - 280.0f, ((ObjWidth * 2.0f) / 3.0f) - 40.0f, 60.0f};
+	FreeViewLabel.VMargin(20.0f, &FreeViewLabel);
+	Ui()->DoLabel(&FreeViewLabel, Localize("Free-View"), BigFontSize, TEXTALIGN_ML);
 
 	if(m_SelectorMouse.x >= -(ObjWidth - 20.0f) + (ObjWidth * 2.0f / 3.0f) && m_SelectorMouse.x <= -(ObjWidth - 20.0f) + (ObjWidth * 2.0f / 3.0f) + ((ObjWidth * 2.0f) / 3.0f) - 40.0f &&
 		m_SelectorMouse.y >= -280.0f && m_SelectorMouse.y <= -220.0f)
@@ -395,7 +397,9 @@ void CSpectator::OnRender()
 		}
 	}
 	TextRender()->TextColor(1.0f, 1.0f, 1.0f, MultiViewSelected ? 1.0f : 0.5f);
-	TextRender()->Text(Width / 2.0f - (ObjWidth - 40.0f) + (ObjWidth * 2.0f / 3.0f), Height / 2.0f - 280.f + (60.f - BigFontSize) / 2.f, BigFontSize, Localize("Multi-View"), -1.0f);
+	CUIRect MultiViewLabel = {Width / 2.0f - (ObjWidth - 20.0f) + (ObjWidth * 2.0f / 3.0f), Height / 2.0f - 280.0f, ((ObjWidth * 2.0f) / 3.0f) - 40.0f, 60.0f};
+	MultiViewLabel.VMargin(20.0f, &MultiViewLabel);
+	Ui()->DoLabel(&MultiViewLabel, Localize("Multi-View"), BigFontSize, TEXTALIGN_ML);
 
 	if(Client()->State() == IClient::STATE_DEMOPLAYBACK && GameClient()->m_Snap.m_LocalClientId >= 0)
 	{
@@ -412,7 +416,9 @@ void CSpectator::OnRender()
 			}
 		}
 		TextRender()->TextColor(1.0f, 1.0f, 1.0f, FollowSelected ? 1.0f : 0.5f);
-		TextRender()->Text(Width / 2.0f - (ObjWidth - 40.0f) + (ObjWidth * 2.0f * 2.0f / 3.0f), Height / 2.0f - 280.0f + (60.f - BigFontSize) / 2.f, BigFontSize, Localize("Follow"), -1.0f);
+		CUIRect FollowLabel = {Width / 2.0f - (ObjWidth - 20.0f) + (ObjWidth * 2.0f * 2.0f / 3.0f), Height / 2.0f - 280.0f, ((ObjWidth * 2.0f) / 3.0f) - 40.0f, 60.0f};
+		FollowLabel.VMargin(20.0f, &FollowLabel);
+		Ui()->DoLabel(&FollowLabel, Localize("Follow"), BigFontSize, TEXTALIGN_ML);
 	}
 
 	float x = -(ObjWidth - 35.0f), y = StartY;
