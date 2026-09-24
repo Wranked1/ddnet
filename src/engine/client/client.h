@@ -116,7 +116,7 @@ class CClient : public IClient, public CDemoPlayer::IListener
 	int m_aRconAuthed[NUM_DUMMIES] = {0, 0};
 	char m_aRconUsername[64] = "";
 	char m_aRconPassword[sizeof(g_Config.m_SvRconPassword)] = "";
-	int m_UseTempRconCommands = 0;
+	int m_aUseTempRconCommands[NUM_DUMMIES] = {0, 0};
 	int m_ExpectedRconCommands = -1;
 	int m_GotRconCommands = 0;
 	char m_aPassword[sizeof(g_Config.m_Password)] = "";
@@ -308,7 +308,7 @@ public:
 	void SendMapRequest();
 
 	bool RconAuthed() const override { return m_aRconAuthed[g_Config.m_ClDummy] != 0; }
-	bool UseTempRconCommands() const override { return m_UseTempRconCommands != 0; }
+	bool UseTempRconCommands() const override { return m_aUseTempRconCommands[g_Config.m_ClDummy] != 0; }
 	void RconAuth(const char *pName, const char *pPassword, bool Dummy = g_Config.m_ClDummy) override;
 	void Rcon(const char *pCmd) override;
 	bool ReceivingRconCommands() const override { return m_ExpectedRconCommands > 0; }

@@ -757,7 +757,7 @@ void CClient::DisconnectWithReason(const char *pReason)
 	mem_zero(m_aRconPassword, sizeof(m_aRconPassword));
 	m_MapDetails = std::nullopt;
 	m_ServerSentCapabilities = false;
-	m_UseTempRconCommands = 0;
+	m_aUseTempRconCommands[0] = 0;
 	m_ExpectedRconCommands = -1;
 	m_GotRconCommands = 0;
 	m_pConsole->DeregisterTempAll();
@@ -846,6 +846,7 @@ void CClient::DummyConnect()
 
 	m_LastDummyConnectTime = GlobalTime();
 	m_aRconAuthed[1] = 0;
+	m_aUseTempRconCommands[1] = 0;
 	m_DummySendConnInfo = true;
 
 	g_Config.m_ClDummyCopyMoves = 0;
@@ -868,6 +869,7 @@ void CClient::DummyDisconnect(const char *pReason)
 	g_Config.m_ClDummy = 0;
 
 	m_aRconAuthed[1] = 0;
+	m_aUseTempRconCommands[1] = 0;
 	m_aapSnapshots[1][SNAP_CURRENT] = nullptr;
 	m_aapSnapshots[1][SNAP_PREV] = nullptr;
 	m_aReceivedSnapshots[1] = 0;
@@ -2049,15 +2051,16 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket, int Conn, bool Dummy)
 				if(m_aRconAuthed[Conn])
 					RconAuth(m_aRconUsername, m_aRconPassword, g_Config.m_ClDummy ^ 1);
 			}
+			const int Old = m_aUseTempRconCommands[Conn];
+			m_aUseTempRconCommands[Conn] = Unpacker.GetInt();
+			if(Unpacker.Error())
+			{
+				m_aUseTempRconCommands[Conn] = 0;
+			}
+			// The rcon commands and maplist are only handled for the main connection
 			if(Conn == CONN_MAIN)
 			{
-				int Old = m_UseTempRconCommands;
-				m_UseTempRconCommands = Unpacker.GetInt();
-				if(Unpacker.Error())
-				{
-					m_UseTempRconCommands = 0;
-				}
-				if(Old != 0 && m_UseTempRconCommands == 0)
+				if(Old != 0 && m_aUseTempRconCommands[Conn] == 0)
 				{
 					m_pConsole->DeregisterTempAll();
 					m_ExpectedRconCommands = -1;
