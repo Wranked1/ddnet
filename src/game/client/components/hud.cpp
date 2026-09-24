@@ -409,12 +409,18 @@ void CHud::RenderScoreHud()
 				char aBuf[16];
 				str_format(aBuf, sizeof(aBuf), "%d.", aPos[t]);
 				if(str_comp(aBuf, m_aScoreInfo[t].m_aRankText) != 0)
+				{
+					m_aScoreInfo[t].m_RankTextWidth = TextRender()->TextWidth(10.0f, aBuf);
 					RecreateRect = true;
+				}
 			}
 
 			static float s_TextWidth10 = TextRender()->TextWidth(14.0f, "10", -1, -1.0f);
 			float ScoreWidthMax = std::max({m_aScoreInfo[0].m_ScoreTextWidth, m_aScoreInfo[1].m_ScoreTextWidth, s_TextWidth10});
-			float Split = 3.0f, ImageSize = 16.0f, PosSize = 16.0f;
+			float Split = 3.0f, ImageSize = 16.0f;
+			// keep a Split gap between the widest rank and the tee, which is drawn ScoreSingleBoxHeight wide
+			float RankWidthMax = std::max(m_aScoreInfo[0].m_RankTextWidth, m_aScoreInfo[1].m_RankTextWidth);
+			float PosSize = std::max(16.0f, RankWidthMax + (ScoreSingleBoxHeight - ImageSize) + Split);
 
 			for(int t = 0; t < 2; t++)
 			{

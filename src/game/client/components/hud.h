@@ -27,6 +27,7 @@ struct SScoreInfo
 		m_aRankText[0] = 0;
 		m_aPlayerNameText[0] = 0;
 		m_ScoreTextWidth = 0.f;
+		m_RankTextWidth = 0.f;
 		m_Initialized = false;
 	}
 
@@ -34,6 +35,7 @@ struct SScoreInfo
 	STextContainerIndex m_TextScoreContainerIndex;
 	float m_ScoreTextWidth;
 	char m_aScoreText[16];
+	float m_RankTextWidth;
 	char m_aRankText[16];
 	char m_aPlayerNameText[MAX_NAME_LENGTH];
 	int m_RoundRectQuadContainerIndex;
