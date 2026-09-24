@@ -3454,6 +3454,7 @@ if((GTEST_FOUND OR DOWNLOAD_GTEST) AND SERVER)
     datafile_test.cpp
     dbg_test.cpp
     editor_test.cpp
+    fifo_test.cpp
     fs_test.cpp
     gameworld_test.cpp
     git_revision_test.cpp

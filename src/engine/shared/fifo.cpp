@@ -26,7 +26,7 @@ void CFifo::Init(IConsole *pConsole, const char *pFifoFile, int Flag)
 	m_Flag = Flag;
 
 	bool IsFifo;
-	if(mkfifo(m_aFilename, 0600) == 0)
+	if(mkfifo(m_aFilename, 0600) == 0 || errno == EEXIST)
 	{
 		struct stat Attribute;
 		if(stat(m_aFilename, &Attribute) == 0)
