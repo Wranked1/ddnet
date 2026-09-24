@@ -129,6 +129,9 @@ class CGameConsole : public CComponent
 		 *                   and the cursor is here  -------------/
 		 * The result would be "world "
 		 *
+		 * Quoted arguments are also split, e.g. `bind x "+fire"`, unless the command is known
+		 * to not take commands as argument, e.g. `say "hello"`.
+		 *
 		 * @param pInput the console input line
 		 * @param aCmd the command the cursor is at
 		 */
@@ -140,6 +143,15 @@ class CGameConsole : public CComponent
 		void UpdateCompletionSuggestions();
 
 	private:
+		/**
+		 * Checks whether the input starts with a known command that does not take commands as argument, e.g. say.
+		 *
+		 * @param pInput the console input starting with a command
+		 *
+		 * @return `true` if the command is known and does not take commands as argument, `false` otherwise.
+		 */
+		bool IsCommandWithoutCommandArgument(const char *pInput) const;
+
 		void SetSearching(bool Searching);
 		void ClearSearch();
 		void UpdateSearch();

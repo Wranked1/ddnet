@@ -476,6 +476,9 @@ void CGameConsole::CInstance::GetCommand(const char *pInput, char (&aCmd)[IConso
 	char aaSeparators[][2] = {";", "\""};
 	for(auto *pSeparator : aaSeparators)
 	{
+		// Quoted arguments of commands that do not take commands, e.g. say, are plain strings
+		if(pSeparator[0] == '"' && IsCommandWithoutCommandArgument(aInput + m_CompletionCommandStart))
+			break;
 		int Start, End;
 		str_delimiters_around_offset(aInput + m_CompletionCommandStart, pSeparator, m_Input.GetCursorOffset() - m_CompletionCommandStart, &Start, &End);
 		m_CompletionCommandStart += Start;
@@ -485,6 +488,16 @@ void CGameConsole::CInstance::GetCommand(const char *pInput, char (&aCmd)[IConso
 	m_CompletionCommandStart = str_skip_whitespaces_const(aInput + m_CompletionCommandStart) - aInput;
 
 	str_copy(aCmd, aInput + m_CompletionCommandStart);
+}
+
+bool CGameConsole::CInstance::IsCommandWithoutCommandArgument(const char *pInput) const
+{
+	const char *pCommandStart = str_skip_whitespaces_const(pInput);
+	char aCommandName[IConsole::CMDLINE_LENGTH];
+	str_truncate(aCommandName, sizeof(aCommandName), pCommandStart, str_skip_to_whitespace_const(pCommandStart) - pCommandStart);
+	const bool UseTempCommands = m_Type == CGameConsole::CONSOLETYPE_REMOTE && m_pGameConsole->Client()->RconAuthed() && m_pGameConsole->Client()->UseTempRconCommands();
+	const IConsole::ICommandInfo *pCommand = m_pGameConsole->m_pConsole->GetCommandInfo(aCommandName, m_CompletionFlagmask, UseTempCommands);
+	return pCommand != nullptr && str_find(pCommand->Params(), "[command]") == nullptr;
 }
 
 static void StrCopyUntilSpace(char *pDest, size_t DestSize, const char *pSrc)
