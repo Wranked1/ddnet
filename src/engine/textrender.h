@@ -143,7 +143,7 @@ public:
 	vec2 m_ReleaseMouse = vec2(0.0f, 0.0f);
 
 	// note m_SelectionStart can be bigger than m_SelectionEnd, depending on how the mouse cursor was dragged
-	// also note, that these are the character offsets decoded
+	// also note, that these are the character offsets decoded, not counting line breaks
 	int m_SelectionStart = 0;
 	int m_SelectionEnd = 0;
 

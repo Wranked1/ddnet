@@ -1048,6 +1048,21 @@ int CGameConsole::PossibleMaps(const char *pStr, IConsole::FPossibleCallback pfn
 	return Index;
 }
 
+// converts a glyph offset of the text renderer's selection to a byte offset,
+// line breaks must not be counted because they are not rendered as glyphs
+static int GlyphOffsetToBytes(const char *pStr, int GlyphOffset)
+{
+	int ByteOffset = 0;
+	int GlyphCount = 0;
+	while(GlyphCount < GlyphOffset && pStr[ByteOffset] != '\0')
+	{
+		if(pStr[ByteOffset] != '\n')
+			GlyphCount++;
+		ByteOffset = str_utf8_forward(pStr, ByteOffset);
+	}
+	return ByteOffset;
+}
+
 // only defined for 0<=t<=1
 static float ConsoleScaleFunc(float t)
 {
@@ -1568,8 +1583,11 @@ void CGameConsole::OnRender()
 				if(m_WantsSelectionCopy)
 				{
 					const bool HasNewLine = !SelectionString.empty();
-					const size_t OffUTF8Start = str_utf8_offset_chars_to_bytes(pEntry->m_aText, pConsole->m_CurSelStart);
-					const size_t OffUTF8End = str_utf8_offset_chars_to_bytes(pEntry->m_aText, pConsole->m_CurSelEnd);
+					size_t OffUTF8Start = GlyphOffsetToBytes(pEntry->m_aText, pConsole->m_CurSelStart);
+					// the first selected glyph comes after the line breaks at this offset
+					while(pEntry->m_aText[OffUTF8Start] == '\n')
+						OffUTF8Start++;
+					const size_t OffUTF8End = GlyphOffsetToBytes(pEntry->m_aText, pConsole->m_CurSelEnd);
 					SelectionString.insert(0, (std::string(&pEntry->m_aText[OffUTF8Start], OffUTF8End - OffUTF8Start) + (HasNewLine ? "\n" : "")));
 				}
 				pConsole->m_HasSelection = true;
