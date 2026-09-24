@@ -661,22 +661,23 @@ void CMapView::Render(CUIRect View)
 		}
 	}
 
-	if(Ui()->CheckActiveItem(Editor()->MapView()) && Editor()->m_pContainerPanned == nullptr)
+	const EActiveOp ActiveOp = Map()->m_MapViewState.m_ActiveOp;
+	const bool MouseReleased = Ui()->CheckActiveItem(Editor()->MapView()) && Editor()->m_pContainerPanned == nullptr && !Ui()->MouseButton(0);
+	// Another UI element can become active during a brush operation, e.g. when opening a dialog with a hotkey while drawing
+	const bool BrushOpInterrupted = (ActiveOp == EActiveOp::BRUSH_GRAB || ActiveOp == EActiveOp::BRUSH_DRAW || ActiveOp == EActiveOp::BRUSH_PAINT) && Ui()->ActiveItem() != Editor()->MapView();
+	if(MouseReleased || BrushOpInterrupted)
 	{
-		// release mouse
-		if(!Ui()->MouseButton(0))
+		if(ActiveOp == EActiveOp::BRUSH_DRAW)
 		{
-			if(Map()->m_MapViewState.m_ActiveOp == EActiveOp::BRUSH_DRAW)
-			{
-				std::shared_ptr<IEditorAction> pAction = std::make_shared<CEditorBrushDrawAction>(Map(), Map()->m_SelectedGroup);
+			std::shared_ptr<IEditorAction> pAction = std::make_shared<CEditorBrushDrawAction>(Map(), Map()->m_SelectedGroup);
 
-				if(!pAction->IsEmpty()) // Avoid recording tile draw action when placing quads only
-					Map()->m_EditorHistory.RecordAction(pAction);
-			}
-
-			Map()->m_MapViewState.m_ActiveOp = EActiveOp::NONE;
-			Ui()->SetActiveItem(nullptr);
+			if(!pAction->IsEmpty()) // Avoid recording tile draw action when placing quads only
+				Map()->m_EditorHistory.RecordAction(pAction);
 		}
+
+		Map()->m_MapViewState.m_ActiveOp = EActiveOp::NONE;
+		if(MouseReleased)
+			Ui()->SetActiveItem(nullptr);
 	}
 
 	if(!Editor()->m_ShowPicker && Map()->SelectedGroup() && Map()->SelectedGroup()->m_UseClipping)
