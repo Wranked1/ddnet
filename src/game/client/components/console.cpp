@@ -1164,7 +1164,7 @@ void CGameConsole::OnRender()
 	CInstance *pConsole = CurrentConsole();
 
 	const float MaxConsoleHeight = Screen.h * 3 / 5.0f;
-	float Progress = (Client()->GlobalTime() - (m_StateChangeEnd - m_StateChangeDuration)) / m_StateChangeDuration;
+	const float Progress = std::clamp((Client()->GlobalTime() - (m_StateChangeEnd - m_StateChangeDuration)) / m_StateChangeDuration, 0.0f, 1.0f);
 
 	if(Progress >= 1.0f)
 	{
@@ -1178,8 +1178,6 @@ void CGameConsole::OnRender()
 			m_ConsoleState = CONSOLE_OPEN;
 			pConsole->m_Input.Activate(EInputPriority::CONSOLE);
 		}
-
-		Progress = 1.0f;
 	}
 
 	if(m_ConsoleState == CONSOLE_OPEN && g_Config.m_ClEditor)
@@ -1679,7 +1677,9 @@ void CGameConsole::Toggle(int Type)
 		}
 		else
 		{
-			float Progress = m_StateChangeEnd - Client()->GlobalTime();
+			// The transition may already have ended without a frame being rendered to update
+			// the state. Start the reversed transition from the beginning in that case.
+			float Progress = std::clamp(m_StateChangeEnd - Client()->GlobalTime(), 0.0f, m_StateChangeDuration);
 			float ReversedProgress = m_StateChangeDuration - Progress;
 
 			m_StateChangeEnd = Client()->GlobalTime() + ReversedProgress;
